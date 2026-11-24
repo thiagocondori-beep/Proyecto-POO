@@ -98,3 +98,66 @@ class Bebida(Producto):
 
     def contar_platos(self):
         return 0
+
+    class Combo(Producto):
+    def __init__(self, nombre, productos=None, descuento=0.10):
+        super().__init__(nombre, 0.0)
+        self.descuento = descuento
+        self._productos = []
+        if productos:
+            for prod in productos:
+                self.agregar_producto(prod)
+
+    @property
+    def descuento(self):
+        return self._descuento
+
+    @descuento.setter
+    def descuento(self, valor):
+        if valor < 0 or valor >= 1:
+            raise ValueError("El descuento debe estar entre 0 y 1.")
+        self._descuento = float(valor)
+
+    @property
+    def productos(self):
+        return list(self._productos)
+
+    def _contiene_a(self, objetivo):
+        if self is objetivo:
+            return True
+        for p in self._productos:
+            if isinstance(p, Combo) and p._contiene_a(objetivo):
+                return True
+        return False
+
+    def agregar_producto(self, producto):
+        if not isinstance(producto, Producto):
+            raise TypeError("Solo se pueden agregar productos al combo.")
+        if isinstance(producto, Combo) and producto._contiene_a(self):
+            raise ValueError("Un combo no puede contenerse a sí mismo.")
+        self._productos.append(producto)
+
+    def _validar_minimo_productos(self):
+        if len(self._productos) < 2:
+            raise ValueError("Un combo debe tener al menos 2 productos.")
+
+    def calcular_precio(self):
+        self._validar_minimo_productos()
+        suma = 0
+        for p in self._productos:
+            suma += p.calcular_precio()
+        return round(suma * (1 - self.descuento), 2)
+
+    def esta_disponible(self, dia):
+        self._validar_minimo_productos()
+        for p in self._productos:
+            if not p.esta_disponible(dia):
+                return False
+        return True
+
+    def contar_platos(self):
+        self._validar_minimo_productos()
+        total = 0
+        for p in self._productos:
+            total += p.contar_platos()
+        return total
