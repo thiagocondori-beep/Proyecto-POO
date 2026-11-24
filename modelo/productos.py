@@ -38,6 +38,7 @@ class Producto(ABC):
     def contar_platos(self):
         pass
 
+
 class Plato(Producto):
     def __init__(self, nombre, precio, dias=None):
         if precio <= 0:
@@ -99,7 +100,8 @@ class Bebida(Producto):
     def contar_platos(self):
         return 0
 
-    class Combo(Producto):
+
+class Combo(Producto):
     def __init__(self, nombre, productos=None, descuento=0.10):
         super().__init__(nombre, 0.0)
         self.descuento = descuento
